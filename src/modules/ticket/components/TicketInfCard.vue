@@ -48,6 +48,7 @@ const props = defineProps<{
 </template>
 
 <style scoped lang="css">
+@reference "@/assets/main.css";
 .ticket_tag {
   @apply rounded-full mr-3 px-3 py-1;
 }

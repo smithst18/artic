@@ -1,7 +1,7 @@
 <script setup lang="ts">
-    const props = defineProps<{
-        showModal: Boolean
-    }>();
+const props = defineProps<{
+  showModal: boolean
+}>()
 </script>
 
 <template>
@@ -11,32 +11,29 @@
         <div class="modal-container bg-white">
           <!-- header modal  -->
           <div class="modal-header flex items-center">
-            <slot name="header">
-            </slot>
-            <button class="modal-default-button ml-auto flex items-center rounded" @click="$emit('close-modal')">
-                <span class="material-symbols-outlined text-xl text-red-400">
-                    close
-                </span>
+            <slot name="header"> </slot>
+            <button
+              class="modal-default-button ml-auto flex items-center rounded cursor-pointer"
+              @click="$emit('close-modal')"
+            >
+              <span class="material-symbols-outlined text-xl text-red-400"> close </span>
             </button>
           </div>
           <!-- body modal  -->
           <div class="modal-body">
-            <slot name="body">
-            </slot>
+            <slot name="body"> </slot>
           </div>
           <!-- footer slot  -->
           <div class="modal-footer">
-            <slot name="footer">
-            </slot>
+            <slot name="footer"> </slot>
           </div>
         </div>
       </div>
     </div>
   </transition>
 </template>
-  
-  
-<style scoped>  
+
+<style scoped>
 .modal-enter-active,
 .modal-leave-active {
   transition: opacity 0.5s ease;
@@ -72,7 +69,7 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
   transition: all 0.3s ease;
 }
-  
+
 .modal-header h3 {
   margin-top: 0;
   color: #42b983;

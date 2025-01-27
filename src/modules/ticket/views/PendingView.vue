@@ -123,7 +123,6 @@ onMounted(() => {
                   class="bg-red-500 hover:bg-red-300 transition ease-in-out delay-75 active:bg-red-300 focus:outline-none focus:ring-2 focus:ring-red-500 w-24"
                   title="Cancelar"
                   :fullSize="false"
-                  @click=""
                 />
                 <BaseButton
                   class="ml-auto w-24"

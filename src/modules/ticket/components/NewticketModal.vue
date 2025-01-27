@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, onMounted } from 'vue'
+import { defineAsyncComponent } from 'vue'
 import { useModal } from '@/composables/useModal'
 import { useForm } from 'vee-validate'
 const TicketModal = defineAsyncComponent(() => import('@/components/commons/GenericModal.vue'))
