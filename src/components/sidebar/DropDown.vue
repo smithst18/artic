@@ -29,7 +29,7 @@ const isActive = computed(() => {
   <div @click="emit('inFocus')" class="pb-2 cursor-pointer">
     <!-- Dropdown Header -->
     <div
-      class="flex items-center p-3 rounded-md transition duration-300 ease-in-out cursor-pointer hover:bg-gray-200"
+      class="flex items-center p-3 rounded-md transition duration-300 ease-in-out cursor-pointer bg-gray-100 hover:bg-gray-200 hover:text-black"
       @click="toggleList"
       :class="{
         'bg-primary text-secondary': isActive,
@@ -56,11 +56,11 @@ const isActive = computed(() => {
 
     <!-- Dropdown Links -->
     <transition name="submenu">
-      <ol v-if="list_is_spanded && props.is_spanded" class="mt-2 space-y-1">
+      <ol v-if="list_is_spanded && props.is_spanded" class="mt-2 space-y-3 mx-5">
         <li v-for="link in props.links" :key="link.name">
           <router-link :to="{ name: link.to }" v-slot="{ isActive }">
             <div
-              class="flex items-center px-3 py-2 rounded-md transition duration-300 ease-out hover:bg-gray-100"
+              class="flex items-center px-3 py-2 rounded-md transition duration-300 ease-out bg-gray-100 hover:bg-gray-100 hover:text-black"
               :class="{
                 'bg-primary text-secondary': isActive,
               }"

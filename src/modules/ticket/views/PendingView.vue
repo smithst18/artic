@@ -31,7 +31,7 @@ onMounted(() => {
     <!-- TITTLE AND BUTTON FOR CREATE NEW TICKETS -->
     <div class="w-full h-[15%]">
       <div class="flex items-center w-full h-full px-5">
-        <h1 class="text-2xl font-bold">Tickets</h1>
+        <h1 class="text-2xl">Listado de Tickets</h1>
         <BaseButton class="ml-auto" title="Nuevo Ticket" :fullSize="false" @click="toggleModal" />
       </div>
     </div>

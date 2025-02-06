@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, onMounted, computed, ref } from 'vue'
+import { defineAsyncComponent, onMounted, ref } from 'vue'
 import { useDataTable } from '@/composables/useDataTble'
 const ManagUserCard = defineAsyncComponent(
   () => import('@/modules/users/components/ManagUserCard.vue'),
@@ -263,7 +263,7 @@ onMounted(() => getDataPagination(actualPage.value))
       <div class="col-span-1 border">
         <p class="flex items-center justify-center h-full">
           <span class="material-symbols-outlined text-3xl mr-2"> person </span>
-          Perfil
+          Cedula
         </p>
       </div>
       <div class="col-span-1 border">
@@ -275,13 +275,13 @@ onMounted(() => getDataPagination(actualPage.value))
       <div class="col-span-1 border">
         <p class="flex items-center justify-center h-full">
           <span class="material-symbols-outlined text-3xl mr-2"> user_attributes </span>
-          Rol
+          Permisos
         </p>
       </div>
       <div class="col-span-1 border">
         <p class="flex items-center justify-center h-full">
           <span class="material-symbols-outlined text-3xl mr-2"> schedule </span>
-          Status
+          Departamento
         </p>
       </div>
     </div>
@@ -290,7 +290,7 @@ onMounted(() => getDataPagination(actualPage.value))
       <div v-for="elm in paginatedData" :key="elm">
         <ManagUserCard
           rol="tecnico"
-          class="hover:bg-primary-light hover:bg-opacity-10 hover:cursor-pointer"
+          class="hover:bg-primary-light hover:cursor-pointer"
           @click="showModal = true"
         />
       </div>

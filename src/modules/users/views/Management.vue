@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { defineAsyncComponent, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+
 const NavbarComponent = defineAsyncComponent(() => import('@/components/navbar/NavBar.vue'))
 const SearchingBar = defineAsyncComponent(() => import('@/components/commons/SearchBar.vue'))
 const AddButton = defineAsyncComponent(() => import('@/components/commons/MainButton.vue'))
@@ -15,11 +16,11 @@ onMounted(() => {
 <template>
   <div class="w-full h-full">
     <div class="h-1/5 pt-8">
-      <h1 class="text-2xl font-bold h-2/4">Equipo</h1>
+      <h1 class="text-2xl h-2/4">Personal</h1>
       <div class="h-2/4">
         <NavbarComponent
           class="pl-5 border-b-2 h-full"
-          :routParams="[{ title: 'users', name: 'clients', notifications: 0, type: 'usuario' }]"
+          :routParams="[{ title: 'usuarios', name: 'clients', notifications: 0, type: 'usuario' }]"
         >
           <template v-slot:extra-element>
             <div class="flex items-center">

@@ -34,7 +34,7 @@ const onSubmit = handleSubmit(async (values) => {
 <template>
   <div class="h-screen w-screen flex items-center justify-center" id="login">
     <div
-      class="sm:w-full md:w-[50%] lg:w-[30%] sm: md: lg: bg-white flex flex-col justify-center items-center rounded shadow-xl"
+      class="sm:w-full md:w-[50%] lg:w-[30%] bg-white flex flex-col justify-center items-center rounded shadow-xl"
     >
       <!-- LOGO -->
       <div class="w-[50%] mx-auto mt-5">
