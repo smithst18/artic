@@ -15,6 +15,7 @@ const userStore = useUserStore()
 const { errors, defineField, handleSubmit, resetForm } = useForm({
   validationSchema: yup.object({
     name: yup.string().required('Nombre requerido').max(50, 'Nombre Demasialo largo').trim(),
+
     ci: yup
       .string()
       .required('Cedula de indentidad requerida')
@@ -22,13 +23,26 @@ const { errors, defineField, handleSubmit, resetForm } = useForm({
       .max(9, 'Cedula muy larga')
       .matches(/^[0-9]+$/, 'Cedula invalida')
       .trim(),
+
+    email: yup.string().email('Debe ser un correo valido').required('Email requerido').trim(),
+
+    rol: yup.string().required('Rol requerido').oneOf(['admin', 'tech', 'client'], 'Rol invalido'),
+
+    office: yup
+      .string()
+      .required('Departamento requerido')
+      .oneOf(['admin', 'tech', 'client'], 'Departamento invalido'),
+    position: yup
+      .string()
+      .required('Cargo requerido')
+      .oneOf(['admin', 'tech', 'client'], 'Cargo invalido'),
+
     password: yup.string().required('contraseña requerida').trim().min(6, 'Contraseña muy corta'),
+
     repassword: yup
       .string()
       .required('repetir contraseña requerida')
       .oneOf([yup.ref('password')], 'Las contraseñas no coinciden'),
-    email: yup.string().email('Debe ser un correo valido').required('Email requerido').trim(),
-    rol: yup.string().required('Rol requerido').oneOf(['admin', 'tech', 'client'], 'Rol invalido'),
   }),
 })
 
@@ -36,6 +50,8 @@ const [name] = defineField('name')
 const [ci] = defineField('ci')
 const [email] = defineField('email')
 const [rol] = defineField('rol')
+const [office] = defineField('office')
+const [position] = defineField('position')
 const [password] = defineField('password')
 const [repassword] = defineField('repassword')
 
@@ -111,6 +127,28 @@ const onSubmit = handleSubmit(async (values) => {
               { value: 'client', label: 'Usuario' },
             ]"
             :error="errors.rol"
+          />
+          <SelectField
+            v-model="office"
+            name="office"
+            label="Departamento"
+            :options="[
+              { value: 'admin', label: 'Administrador' },
+              { value: 'tech', label: 'Tecnico' },
+              { value: 'client', label: 'Usuario' },
+            ]"
+            :error="errors.office"
+          />
+          <SelectField
+            v-model="position"
+            name="position"
+            label="Cargo"
+            :options="[
+              { value: 'admin', label: 'Administrador' },
+              { value: 'tech', label: 'Tecnico' },
+              { value: 'client', label: 'Usuario' },
+            ]"
+            :error="errors.position"
           />
           <InputField
             v-model="password"

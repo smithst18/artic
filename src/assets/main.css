@@ -33,7 +33,7 @@ Con estos slayer component de tailwind mediante las clases peer y form-input  y 
   }
 
   .form-select {
-    @apply appearance-none pr-8 w-full h-full;
+    @apply appearance-none pr-8 w-full;
   }
 
   .form-group {
