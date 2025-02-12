@@ -22,7 +22,6 @@ const emit = defineEmits<{
 }>()
 
 const updateValue = (event: Event) => {
-  console.log(props)
   const input = event.target as HTMLInputElement
   emit('update:modelValue', input.value)
 }
@@ -43,9 +42,12 @@ const updateValue = (event: Event) => {
     />
     <slot> </slot>
     <ErrorMessage :err="error" />
-    <label :for="name" class="form-label" :class="{ 'form-input-filled': modelValue }">{{
-      label
-    }}</label>
+    <label
+      :for="props.name"
+      class="form-label"
+      :class="{ 'form-input-filled-label': modelValue }"
+      >{{ label }}</label
+    >
   </div>
 </template>
 

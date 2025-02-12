@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineAsyncComponent } from 'vue'
-import type { SelectFieldI } from '@/interfaces/selecFieldInterface'
+import type { SelectFieldI } from '@/interfaces/selectInterface'
 const ErrorMessage = defineAsyncComponent(() => import('@/components/commons/ErrorMsg.vue'))
 
 const props = withDefaults(
@@ -27,13 +27,13 @@ const updateValue = (event: Event) => {
 </script>
 
 <template>
-  <div class="form-group z-0 w-full mb-10 capitalize">
+  <div class="form-group w-full mb-10 capitalize">
     <select
       :value="modelValue"
       required
       :name="name"
       @change="updateValue($event)"
-      class="form-imput form-select w-full bg-transparent border-b-2 border-gray-300 focus:outline-none focus:ring-0 focus:border-primary appearance-none capitalize"
+      class="peer form-input form-select"
     >
       <option v-if="options.length < 1">Cargando lista ...</option>
 
@@ -41,8 +41,13 @@ const updateValue = (event: Event) => {
         {{ option.label }}
       </option>
     </select>
-    <label :for="name" class="origin-0">{{ label }}</label>
     <ErrorMessage :err="error" />
+    <label
+      :for="props.name"
+      class="form-label"
+      :class="{ 'form-input-filled-label': modelValue }"
+      >{{ label }}</label
+    >
   </div>
 </template>
 

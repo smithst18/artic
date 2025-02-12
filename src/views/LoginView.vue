@@ -3,13 +3,17 @@ import { ref, reactive } from 'vue'
 import { defineAsyncComponent } from 'vue'
 import { useForm } from 'vee-validate'
 import * as yup from 'yup'
+import { useMainStore } from '@/stores/mainStore'
+import { useRouter } from 'vue-router'
 
 const MainSpiner = defineAsyncComponent(() => import('@/components/commons/MainSpinner.vue'))
 const MainForm = defineAsyncComponent(() => import('@/components/form/MainForm.vue'))
 const InputField = defineAsyncComponent(() => import('@/components/form/InputField.vue'))
 const submitButton = defineAsyncComponent(() => import('@/components/commons/MainButton.vue'))
+const mainStore = useMainStore()
+const router = useRouter()
 
-const { values, errors, defineField, handleSubmit } = useForm({
+const { errors, defineField, handleSubmit } = useForm({
   validationSchema: yup.object({
     ci: yup.string().required('Cedula de indentidad requerida'),
     password: yup.string().required('contraseña requerida').trim(),
@@ -27,7 +31,21 @@ const showPassword = ref(false)
 const handleShowPassword = () => (showPassword.value = !showPassword.value)
 
 const onSubmit = handleSubmit(async (values) => {
-  alert('form enviado')
+  try {
+    formData.ci = values.ci
+    formData.password = values.password
+    const response = await mainStore.logIn(formData)
+    if (response == '200') {
+      error.value = false
+      apiServerError.value = false
+      router.push({ name: 'dashboard' })
+    } else if (response == '401') {
+      error.value = true
+    }
+  } catch (error) {
+    console.log(error)
+    apiServerError.value = true
+  }
 })
 </script>
 
@@ -83,13 +101,15 @@ const onSubmit = handleSubmit(async (values) => {
               </span>
             </transition>
           </InputField>
-          <span class="text-sm text-green-400 text-opacity-90 text-center mb-3"
+          <span
+            class="text-sm text-green-400 text-opacity-90 text-center mb-3"
+            v-if="mainStore.logedUser.id != 0"
             >Sesion Iniciada</span
           >
-          <span class="text-sm text-red-400 text-opacity-90 text-center"
+          <span class="text-sm text-red-400 text-opacity-90 text-center" v-if="error"
             >Usuario o contraseña invalidos</span
           >
-          <span class="text-sm text-red-400 text-opacity-90 text-center"
+          <span class="text-sm text-red-400 text-opacity-90 text-center" v-if="apiServerError"
             >Error en la Conexion con Servidor</span
           >
           <submitButton

@@ -1,11 +1,17 @@
 <script setup lang="ts">
-import { defineAsyncComponent, onMounted, ref } from 'vue'
+import { defineAsyncComponent, onMounted, ref, computed, onUpdated } from 'vue'
+import { useRoute } from 'vue-router'
 import { useDataTable } from '@/composables/useDataTble'
+
 const ManagUserCard = defineAsyncComponent(
-  () => import('@/modules/users/components/ManagUserCard.vue'),
+  () => import('@/modules/users/components/TableUserCard.vue'),
+)
+const TableuserHead = defineAsyncComponent(
+  () => import('@/modules/users/components/TableuserHead.vue'),
 )
 const PaginationBar = defineAsyncComponent(() => import('@/components/table/PaginationBar.vue'))
 const UpdateUserModal = defineAsyncComponent(() => import('@/components/commons/GenericModal.vue'))
+
 const users = [
   {
     icono: 'ruta/al/icono',
@@ -248,43 +254,24 @@ const {
   getPreviusPage,
   getNextPage,
 } = useDataTable(users, 10)
+
+const rout = useRoute()
+//this const is for get the type of user that we are going to show
+const userType = computed(() => rout.params.type)
 // const results =  computed(() => 40 /** tama;o dela rray de data */);
-const prueba = () => {
-  alert('hola mundo desde el usuario selccionado')
-}
 const showModal = ref(false)
-onMounted(() => getDataPagination(actualPage.value))
+onMounted(() => {
+  getDataPagination(actualPage.value)
+})
+onUpdated(() => {
+  console.log(userType.value)
+})
 </script>
 
 <template>
   <div class="w-full h-full">
     <!--INFORMATION INDEX FOR USER TABLE-->
-    <div class="w-full h-[15%] grid grid-cols-4">
-      <div class="col-span-1 border">
-        <p class="flex items-center justify-center h-full">
-          <span class="material-symbols-outlined text-3xl mr-2"> person </span>
-          Cedula
-        </p>
-      </div>
-      <div class="col-span-1 border">
-        <p class="flex items-center justify-center h-full">
-          <span class="material-symbols-outlined text-3xl mr-2"> person_book </span>
-          Nombre
-        </p>
-      </div>
-      <div class="col-span-1 border">
-        <p class="flex items-center justify-center h-full">
-          <span class="material-symbols-outlined text-3xl mr-2"> user_attributes </span>
-          Permisos
-        </p>
-      </div>
-      <div class="col-span-1 border">
-        <p class="flex items-center justify-center h-full">
-          <span class="material-symbols-outlined text-3xl mr-2"> schedule </span>
-          Departamento
-        </p>
-      </div>
-    </div>
+    <TableuserHead />
     <!-- LOOP FOR USERS DATA-->
     <div class="w-full h-[70%] overflow-y-auto scrollbar-hidden">
       <div v-for="elm in paginatedData" :key="elm">

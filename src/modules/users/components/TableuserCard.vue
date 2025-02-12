@@ -13,7 +13,7 @@ const props = defineProps<{
       </div>
     </div>
     <div class="col-span-1 border text-center">
-      <p class="font-semibold">maria claudia.</p>
+      <p class="">maria claudia.</p>
       <p class="text-sm opacity-80">tecnologia.</p>
     </div>
     <div class="col-span-1 border">
@@ -22,9 +22,9 @@ const props = defineProps<{
         :class="[
           { 'bg-red-200 border border-red-400 text-red-600 font-medium': props.rol === 'admin' },
           {
-            'bg-blue-100 border border-blue-400 text-blue-600 font-medium': props.rol === 'tecnico',
+            'bg-blue-100 border border-blue-400 text-blue-600 font-medium': props.rol === 'tech',
           },
-          { 'bg-slate-200 border border-slate-400 text-slate-600': props.rol === 'cliente' },
+          { 'bg-slate-200 border border-slate-400 text-slate-600': props.rol === 'client' },
         ]"
       >
         {{ rol }}

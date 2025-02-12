@@ -9,7 +9,7 @@ const router = useRouter()
 
 onMounted(() => {
   // a tener en cuenta de esta manera no tenemos los params en tiempo real IMPORTANTE
-  router.push({ name: 'clients', params: { type: 'usuario' } })
+  router.push({ name: 'userList', params: { type: 'tech' } })
 })
 </script>
 
@@ -20,7 +20,10 @@ onMounted(() => {
       <div class="h-2/4">
         <NavbarComponent
           class="pl-5 border-b-2 h-full"
-          :routParams="[{ title: 'usuarios', name: 'clients', notifications: 0, type: 'usuario' }]"
+          :routParams="[
+            { title: 'usuarios', name: 'userList', notifications: 0, type: 'client' },
+            { title: 'tecnicos', name: 'userList', notifications: 0, type: 'tech' },
+          ]"
         >
           <template v-slot:extra-element>
             <div class="flex items-center">

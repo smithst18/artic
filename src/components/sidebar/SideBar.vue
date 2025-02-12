@@ -87,8 +87,8 @@ const spandDropdown = () => {
     </div>
 
     <!-- User config -->
-    <div class="flex mt-auto mb-5">
-      <userCard :is_spanded="is_spanded" class="cursor-pointer" />
+    <div class="flex mt-auto mb-5" :class="{ 'mx-auto': !is_spanded }">
+      <userCard :is_spanded="is_spanded" class="cursor-pointer" @spand-side-bar="toggleMenu" />
     </div>
   </aside>
 </template>
