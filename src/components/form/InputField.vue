@@ -2,7 +2,7 @@
 import { defineAsyncComponent } from 'vue'
 const ErrorMessage = defineAsyncComponent(() => import('@/components/commons/ErrorMsg.vue'))
 
-const props = withDefaults(
+withDefaults(
   defineProps<{
     modelValue: string | number
     type: 'text' | 'password' | 'date' | 'number'
@@ -33,6 +33,7 @@ const updateValue = (event: Event) => {
       :value="modelValue"
       @input="updateValue($event)"
       required
+      :id="name"
       :type="type"
       :name="name"
       placeholder=""
@@ -42,12 +43,9 @@ const updateValue = (event: Event) => {
     />
     <slot> </slot>
     <ErrorMessage :err="error" />
-    <label
-      :for="props.name"
-      class="form-label"
-      :class="{ 'form-input-filled-label': modelValue }"
-      >{{ label }}</label
-    >
+    <label :for="name" class="form-label" :class="{ 'form-input-filled-label': modelValue }">{{
+      label
+    }}</label>
   </div>
 </template>
 

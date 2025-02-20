@@ -6,26 +6,35 @@ const props = defineProps<{
 
 <template>
   <transition name="modal">
-    <div class="modal-mask" v-show="props.showModal">
-      <div class="modal-wrapper">
-        <div class="modal-container bg-white">
-          <!-- header modal  -->
-          <div class="modal-header flex items-center">
-            <slot name="header"> </slot>
+    <div
+      v-show="props.showModal"
+      class="fixed inset-0 z-[999] h-full w-full bg-black/50 transition-opacity duration-200 ease-in"
+      @click="$emit('close-modal')"
+    >
+      <div class="flex h-full w-full items-center justify-center p-4">
+        <div
+          class="relative max-w-[50%] overflow-auto rounded-lg bg-secondary p-5 shadow-[0_2px_8px_rgba(0,0,0,0.33)]"
+          @click.stop
+        >
+          <!-- Header modal -->
+          <div class="mx-8 mt-5 flex items-center">
+            <slot name="header" />
             <button
-              class="modal-default-button ml-auto flex items-center rounded cursor-pointer"
+              class="ml-auto flex h-7 w-7 items-center justify-center hover:opacity-60 cursor-pointer"
               @click="$emit('close-modal')"
             >
-              <span class="material-symbols-outlined text-xl text-red-400"> close </span>
+              <span class="material-symbols-outlined text-2xl">close</span>
             </button>
           </div>
-          <!-- body modal  -->
-          <div class="modal-body">
-            <slot name="body"> </slot>
+
+          <!-- Body modal -->
+          <div class="mx-8 my-5">
+            <slot name="body" />
           </div>
-          <!-- footer slot  -->
-          <div class="modal-footer">
-            <slot name="footer"> </slot>
+
+          <!-- Footer modal -->
+          <div class="mx-8">
+            <slot name="footer" />
           </div>
         </div>
       </div>
@@ -33,53 +42,14 @@ const props = defineProps<{
   </transition>
 </template>
 
-<style scoped>
+<style>
 .modal-enter-active,
 .modal-leave-active {
-  transition: opacity 0.5s ease;
+  transition: opacity 0.2s ease-in;
 }
 
 .modal-enter-from,
 .modal-leave-to {
   opacity: 0;
-}
-.modal-mask {
-  position: fixed;
-  z-index: 999;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: table;
-  transition: opacity 0.3s ease;
-}
-
-.modal-wrapper {
-  display: table-cell;
-  vertical-align: middle;
-}
-
-.modal-container {
-  width: fit-content;
-  max-width: 50%;
-  margin: 0px auto;
-  padding: 20px 30px;
-  border-radius: 2px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
-  transition: all 0.3s ease;
-}
-
-.modal-header h3 {
-  margin-top: 0;
-  color: #42b983;
-}
-
-.modal-body {
-  margin: 20px 0;
-}
-
-.modal-default-button {
-  float: right;
 }
 </style>

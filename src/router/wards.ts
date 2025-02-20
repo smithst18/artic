@@ -20,7 +20,7 @@ export const isNotAuth = (
   const { isLoged, logedUser } = useMainStore()
 
   if (isLoged) {
-    if (logedUser.rol == 'admin') next({ name: 'management' })
+    if (logedUser.role == 'admin') next({ name: 'management' })
     else next({ name: 'home' })
   } else next()
 }
@@ -35,10 +35,10 @@ export const rolGuard = (
   if (
     to.meta.rolsAllow &&
     Array.isArray(to.meta.rolsAllow) &&
-    to.meta.rolsAllow.includes(store.logedUser.rol)
+    to.meta.rolsAllow.includes(store.logedUser.role)
   ) {
     next()
   } else {
-    if (store.logedUser.rol == 'normal') next({ name: 'dashboard' })
+    if (store.logedUser.role == 'normal') next({ name: 'dashboard' })
   }
 }

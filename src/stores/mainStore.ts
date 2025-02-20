@@ -1,8 +1,8 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import { logInService } from '@/services/userServices'
+import { logInService } from '@/services/userService'
 import { useCookies } from 'vue3-cookies'
-import type { userI } from '@/interfaces/userInterface'
+import type { userPayloadI } from '@/interfaces/userInterface'
 import { useRouter } from 'vue-router'
 
 export const useMainStore = defineStore('main', () => {
@@ -12,15 +12,15 @@ export const useMainStore = defineStore('main', () => {
   //esta propiedad es usada para hacer las busquedas en el componente searchBar
   const search = ref('')
   const isLoged = ref<boolean>(false)
-  const logedUser = ref<userI>({
+  const logedUser = ref<userPayloadI>({
     id: 0,
     name: '',
     ci: '',
-    rol: '',
+    role: '',
     email: '',
   })
   //propertys para las tablas y paginacion
-  const page = ref(0) // pagina en la que comienza la pagination
+  const page = ref(1) // pagina en la que comienza la pagination
   const totalPages = ref(0) //numero de paginas
   const perPage = ref(0)
   const totalResults = ref(0)
@@ -41,7 +41,7 @@ export const useMainStore = defineStore('main', () => {
         //send the request again with the token in the header
         const payload = await logInService(form)
         // we get the payload of the user information and save it in the cookies for use it lately
-        cookies.set('user', JSON.stringify(payload.user), 60 * 60 * 12)
+        cookies.set('user', JSON.stringify(payload.user), payload.user.exp - payload.user.iat)
         //redirect to home view
         logedUser.value = payload.user
         isLoged.value = true
@@ -79,7 +79,7 @@ export const useMainStore = defineStore('main', () => {
   //fuction for reset the store
 
   const $resetPaginator = () => {
-    page.value = 0 // pagina en la que comienza la pagination
+    page.value = 1 // pagina en la que comienza la pagination
     totalPages.value = 0 //numero de paginas
     perPage.value = 0
   }
@@ -90,7 +90,7 @@ export const useMainStore = defineStore('main', () => {
       id: 0,
       name: '',
       ci: '',
-      rol: '',
+      role: '',
       email: '',
     }
     search.value = ''
@@ -103,31 +103,43 @@ export const useMainStore = defineStore('main', () => {
   }
 
   ;(function () {
-    const userCookie = cookies.get('user') as Partial<userI>
+    function isUserCookie(obj: unknown): obj is userPayloadI {
+      if (typeof obj !== 'object' || obj === null) return false
 
-    if (
-      userCookie &&
-      userCookie.id &&
-      userCookie.name &&
-      userCookie.ci &&
-      userCookie.rol &&
-      userCookie.email
-    ) {
+      const requiredKeys: (keyof userPayloadI)[] = ['id', 'name', 'ci', 'role', 'email']
+
+      return requiredKeys.every(
+        (key) => key in obj && typeof (obj as Record<string, unknown>)[key] === 'string',
+      )
+    }
+
+    // Obtener y verificar la cookie
+    const userCookie = cookies.get('user')
+
+    if (isUserCookie(userCookie)) {
       try {
-        isLoged.value = true
+        // Convertir y validar tipos
+        const userId = Number(userCookie.id)
+        if (isNaN(userId)) throw new Error('ID de usuario inválido')
 
-        const parserUser: userI = {
-          id: Number(userCookie.id),
+        const parsedUser: userPayloadI = {
+          id: userId,
           name: userCookie.name,
           ci: userCookie.ci,
-          rol: userCookie.rol,
+          role: userCookie.role,
           email: userCookie.email,
         }
 
-        logedUser.value = parserUser
+        // Actualizar estado
+        isLoged.value = true
+        logedUser.value = parsedUser
       } catch (err) {
-        console.log(err)
+        console.error('Error al procesar la cookie:', err)
+        // Opcional: limpiar cookie inválida
+        cookies.remove('user')
       }
+    } else {
+      console.log('No hay usuario autenticado')
     }
   })()
 

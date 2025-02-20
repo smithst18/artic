@@ -1,16 +1,21 @@
 <script setup lang="ts">
-import { defineAsyncComponent, onMounted } from 'vue'
+import { defineAsyncComponent, onMounted, onUpdated, ref } from 'vue'
 import { useForm } from 'vee-validate'
 import * as yup from 'yup'
 import { useUserStore } from '@/modules/users/store/userStore'
 import { push } from 'notivue'
 
-const MainSpiner = defineAsyncComponent(() => import('@/components/commons/MainSpinner.vue'))
+const props = defineProps<{
+  id: string
+}>()
+
 const MainForm = defineAsyncComponent(() => import('@/components/form/MainForm.vue'))
 const InputField = defineAsyncComponent(() => import('@/components/form/InputField.vue'))
 const SelectField = defineAsyncComponent(() => import('@/components/form/SelectField.vue'))
 const submitButton = defineAsyncComponent(() => import('@/components/commons/MainButton.vue'))
+const FormSkeleton = defineAsyncComponent(() => import('@/components/skeletons/FormSkeleton.vue'))
 const userStore = useUserStore()
+const userId = ref(props.id)
 
 const { errors, defineField, handleSubmit, resetForm } = useForm({
   validationSchema: yup.object({
@@ -58,6 +63,7 @@ const onSubmit = handleSubmit(async (values) => {
   try {
     const response = await userStore.signUp(values)
 
+    console.log(response)
     if (response == '200') {
       notification.resolve({
         title: 'Usuario Creado',
@@ -80,90 +86,108 @@ const onSubmit = handleSubmit(async (values) => {
   }
 })
 
+const deleteUser = async () => {
+  console.log('user deleted id : ', userId)
+}
+onUpdated(async () => {
+  await userStore.setPickedUser(Number(props.id))
+  resetForm({
+    values: {
+      ...userStore.pickedUser,
+      role: userStore.pickedUser.role.id,
+      office: userStore.pickedUser.position.id,
+      position: userStore.pickedUser.position.id,
+    },
+  })
+})
 onMounted(async () => {
   await userStore.setFormEntitys()
 })
 </script>
 
 <template>
-  <div class="w-full h-full flex items-center justify-center bg-primary-light/10">
-    <div class="w-3/4 p-5 rounded-md shadow-xl bg-white">
-      <h1 class="text-2xl text-center mb-5 mt-20">Registro de Usuario</h1>
-      <MainForm @submit="onSubmit" :cols="2" id="form" class="w-full pt-2 pb-16 px-16 rounded-md">
-        <template v-slot:content>
-          <InputField
-            v-model="name"
-            type="text"
-            name="name"
-            autocomplete="name"
-            label="nombre"
-            :error="errors.name"
-          />
-          <InputField
-            v-model="ci"
-            type="text"
-            name="ci"
-            autocomplete="off"
-            label="cedula"
-            :error="errors.ci"
-          />
-          <InputField
-            v-model="email"
-            type="text"
-            name="email"
-            autocomplete="email"
-            label="email"
-            :error="errors.email"
-          />
-          <SelectField
-            v-model="role"
-            name="role"
-            label="role"
-            :options="userStore.getRoleList"
-            :error="errors.role"
-          />
-          <SelectField
-            v-model="office"
-            name="office"
-            label="Departamento"
-            :options="userStore.getOfficeList"
-            :error="errors.office"
-          />
-          <SelectField
-            v-model="position"
-            name="position"
-            label="Cargo"
-            :options="userStore.getpositionList"
-            :error="errors.position"
-          />
-          <InputField
-            v-model="password"
-            type="text"
-            name="password"
-            autocomplete="off"
-            label="contraseña"
-            :error="errors.password"
-          />
-          <InputField
-            v-model="repassword"
-            type="text"
-            name="repassword"
-            autocomplete="off"
-            label=" repetir contraseña"
-            :error="errors.repassword"
-          />
-          <submitButton
-            :full-size="true"
-            title="Guardar"
-            type="submit"
-            class="col-span-2 text-center my-5 cursor-pointer"
-          >
-            <MainSpiner class="ml-[-15px]" />
-          </submitButton>
-        </template>
-      </MainForm>
-    </div>
-  </div>
+  <FormSkeleton v-if="userStore.pickedUser.id <= 0" class="w-[500px]" />
+  <MainForm @submit="onSubmit" :cols="2" id="form" class="w-full" v-else>
+    <template v-slot:content>
+      <InputField
+        v-model="name"
+        type="text"
+        name="name"
+        autocomplete="name"
+        label="nombre"
+        :error="errors.name"
+      />
+      <InputField
+        v-model="ci"
+        type="text"
+        name="ci"
+        autocomplete="off"
+        label="cedula"
+        :error="errors.ci"
+      />
+      <InputField
+        v-model="email"
+        type="text"
+        name="email"
+        autocomplete="email"
+        label="email"
+        :error="errors.email"
+      />
+      <SelectField
+        v-model="role"
+        name="role"
+        label="role"
+        :options="userStore.getRoleList"
+        :error="errors.role"
+      />
+      <SelectField
+        v-model="office"
+        name="office"
+        label="Departamento"
+        :options="userStore.getOfficeList"
+        :error="errors.office"
+      />
+      <SelectField
+        v-model="position"
+        name="position"
+        label="Cargo"
+        :options="userStore.getpositionList"
+        :error="errors.position"
+      />
+      <InputField
+        v-model="password"
+        type="text"
+        name="password"
+        autocomplete="off"
+        label="contraseña"
+        :error="errors.password"
+      />
+      <InputField
+        v-model="repassword"
+        type="text"
+        name="repassword"
+        autocomplete="off"
+        label=" repetir contraseña"
+        :error="errors.repassword"
+      />
+      <submitButton
+        @click="deleteUser"
+        type="button"
+        :full-size="false"
+        title="borrar"
+        class="text-center my-5 bg-red-400 hover:bg-red-300 active:bg-red-300 focus:ring-red-300"
+      >
+      </submitButton>
+      <submitButton
+        type="submit"
+        :full-size="true"
+        title="Guardar"
+        class="text-center my-5 cursor-pointer"
+      >
+      </submitButton>
+      <div class="col-span-2"></div>
+    </template>
+  </MainForm>
 </template>
 
-<style scoped lang="css"></style>
+<style scoped lang="scss"></style>

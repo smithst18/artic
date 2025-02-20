@@ -16,24 +16,24 @@ Con estos slayer component de tailwind mediante las clases peer y form-input  y 
     esta clase permite darle los estilos grobales a los inputs
   */
   .form-input {
-    @apply block w-full rounded-md border-b-2 border-b-gray-300 bg-transparent px-3 py-2 text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500;
+    @apply block w-full h-10 px-3 py-2 rounded-md border-b-2 border-b-gray-300 bg-transparent text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500;
   }
   /*
     Con esta clase permitimos que el label se dezplace hacia arriba cuando se haga focus en el input y cambie de color el texto
   */
   .form-label {
-    @apply absolute left-3 top-2 text-gray-500 transform scale-100 transition-all duration-200 pointer-events-none peer-placeholder-shown:translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-7 peer-focus:scale-75 peer-focus:text-blue-500;
+    @apply absolute w-full left-3 top-2 text-gray-500 transform scale-100 transition-all duration-200 pointer-events-none peer-placeholder-shown:-translate-y-0 peer-placeholder-shown:scale-100 peer-focus:-translate-y-8  peer-focus:scale-100 peer-focus:text-xs peer-focus:text-blue-500;
   }
 
   /*
   Con esta clase se puede hacer que el input se vea como si estuviera lleno  se utiliza para dezplazar el label hacia arriba y cambiar el color del texto cuando el input esta lleno dando coherencia con el form-label
   */
   .form-input-filled-label {
-    @apply -translate-y-7 scale-75 text-blue-500;
+    @apply -translate-y-8  text-xs text-blue-500;
   }
 
   .form-select {
-    @apply appearance-none pr-8 w-full;
+    @apply appearance-none w-full;
   }
 
   .form-group {
@@ -41,9 +41,9 @@ Con estos slayer component de tailwind mediante las clases peer y form-input  y 
   }
 }
 
-:root {
+/* :root {
   --sidebar-width: 300px;
-}
+} */
 * {
   font-family: 'Poppins', sans-serif;
   text-decoration: none;

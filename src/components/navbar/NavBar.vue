@@ -2,7 +2,7 @@
 import { defineAsyncComponent } from 'vue'
 import type { NavbarLink } from '@/interfaces/sidebarInterface'
 const NavbarItem = defineAsyncComponent(() => import('@/components/navbar/NavbarItem.vue'))
-const props = defineProps<{
+defineProps<{
   routParams: Array<NavbarLink>
 }>()
 </script>

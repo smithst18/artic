@@ -6,7 +6,9 @@ const NavbarComponent = defineAsyncComponent(() => import('@/components/navbar/N
 const SearchingBar = defineAsyncComponent(() => import('@/components/commons/SearchBar.vue'))
 const AddButton = defineAsyncComponent(() => import('@/components/commons/MainButton.vue'))
 const router = useRouter()
-
+const searchData = (value: string) => {
+  console.log(value)
+}
 onMounted(() => {
   // a tener en cuenta de esta manera no tenemos los params en tiempo real IMPORTANTE
   router.push({ name: 'userList', params: { type: 'tech' } })
@@ -27,7 +29,7 @@ onMounted(() => {
         >
           <template v-slot:extra-element>
             <div class="flex items-center">
-              <SearchingBar class="mr-5" />
+              <SearchingBar class="mr-5" @on-search-data="searchData" />
               <AddButton
                 :full-size="false"
                 title="Añadir"
@@ -39,6 +41,7 @@ onMounted(() => {
         </NavbarComponent>
       </div>
     </div>
+    <!-- this is the main content of the page -->
     <div class="h-3/4 mt-5">
       <router-view />
     </div>

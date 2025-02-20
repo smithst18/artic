@@ -1,123 +1,145 @@
 <script setup lang="ts">
+import { ref, computed, defineAsyncComponent } from 'vue'
 import SearchingBar from '@/components/commons/SearchBar.vue'
 import PaginationBar from '@/components/table/PaginationBar.vue'
-import { useDataTable } from '@/composables/useDataTble'
-import { computed, onMounted } from 'vue'
+import { useMainStore } from '@/stores/mainStore'
+import type { TableRow, NestedObject } from '@/interfaces/tableI'
+
+const Button = defineAsyncComponent(() => import('@/components/commons/MainButton.vue'))
+const ToolTip = defineAsyncComponent(() => import('@/components/commons/ToolTip.vue'))
 
 const props = defineProps<{
   titles: Array<string>
-  data: Array<object>
+  data: Array<TableRow>
   elementsPerPage: number
+  totalPages: number
+  showSearchBar: boolean
+  toolTipMsg: string
+  updateList: (search: string) => Promise<unknown>
 }>()
+
 const emit = defineEmits<{
   (event: 'pickedElement', id: string): void
+  (event: 'searchData', search: string): void
+  (event: 'buttonAction'): void
+  (event: 'getPreviusPage'): void
+  (event: 'getNextPage'): void
 }>()
 
-const {
-  paginatedData,
-  pages,
-  actualPage,
-  visiblePages,
-  getDataPagination,
-  getPreviusPage,
-  getNextPage,
-} = useDataTable(props.data, props.elementsPerPage)
-
-//propiedad computed para los resultados
+const mainStore = useMainStore()
+const activeIndex = ref(mainStore.getPage)
 const results = computed(() => props.data.length)
-//componente barra de busqueda retorna mediante un evento  el string a buscar
-const searchData = (event: string) => {
-  console.log(event)
+
+const setNextPage = async () => {
+  if (mainStore.getPage < mainStore.getTotalPages) {
+    activeIndex.value += 1
+    mainStore.nextPage()
+    await props.updateList(mainStore.getSearch)
+  }
 }
 
-onMounted(() => getDataPagination(actualPage.value))
+const setDataPaginations = async (page: number) => {
+  activeIndex.value = page
+  mainStore.setPage(page)
+  await props.updateList(mainStore.getSearch)
+}
+
+const setPrevPage = async () => {
+  if (mainStore.getPage > 1) {
+    activeIndex.value -= 1
+    mainStore.prevPage()
+    await props.updateList(mainStore.getSearch)
+  }
+}
+
+const setActiveIndex = (value: number) => (activeIndex.value = value)
+
+const isNestedObject = (prop: string | number | NestedObject): prop is NestedObject => {
+  return typeof prop === 'object' && prop !== null
+}
+
+const handleSearchData = (value: string) => {
+  setActiveIndex(1)
+  mainStore.setPage(1)
+  emit('searchData', value)
+}
 </script>
 
 <template>
-  <div class="w-full h-full">
-    <div class="w-full h-full hidden md:block shadow-md rounded-md p-2">
-      <!-- head of the table-->
-      <div class="flex mt-2">
-        <p class="text-lg font-semibold">Historial de Tickets</p>
-        <SearchingBar @on-search-data="searchData($event)" class="flex ml-auto my-5" />
-      </div>
-      <!-- body for the table -->
-      <div class="w-full h-[70%] overflow-auto">
-        <table class="table-fixed w-full text-sm border-collapse relative">
-          <!-- <caption class="caption-bottom">
-                        Table 3.1: Professional wrestlers and their signature moves.
-                    </caption> -->
-          <!-- TITLES FOR TABLE DATA -->
-          <thead class="bg-gray-50 border-gray-200 sticky top-0 drop-shadow-sm">
-            <tr class="">
-              <th
-                class="p-3 text-sm font-semibold opacity-75 tracking-wide capitalize text-left"
-                v-for="title in titles"
-                :key="title"
-              >
-                {{ title }}
-              </th>
-            </tr>
-          </thead>
-
-          <tbody class="">
-            <tr v-for="elm in paginatedData" :key="elm">
-              <td
-                class="text-sm text-third capitalize text-left whitespace-nowrap overflow-x-auto"
-                v-for="(property, index) in elm"
-                :key="index"
-              >
-                <p v-if="String(index) !== 'nombre'" class="p-3">
-                  {{ property }}
-                </p>
-                <p
-                  v-if="String(index) === 'nombre'"
-                  class="p-3"
-                  @click="emit('pickedElement', elm.numero_random)"
-                >
-                  {{ property }}
-                </p>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <!--pagination component-->
-      <div class="border-t-2 mt-2 w-full h-10">
-        <PaginationBar
-          :pages="pages"
-          :visible-pages="visiblePages"
-          :elementsPerPage="props.elementsPerPage"
-          :results="results"
-          @dataPagination="getDataPagination"
-          @prevPage="getPreviusPage"
-          @nextPage="getNextPage"
-        />
+  <div class="w-full h-full flex flex-col">
+    <!-- Head of the table (button and search) -->
+    <div class="w-full flex-shrink-0">
+      <div class="flex items-center justify-end my-4" v-if="showSearchBar">
+        <ToolTip :text="toolTipMsg">
+          <Button
+            :full-size="false"
+            icon="Add"
+            title=""
+            @doSomething="$emit('buttonAction')"
+            class="mr-5"
+          >
+          </Button>
+        </ToolTip>
+        <SearchingBar @on-search-data="handleSearchData" class="" />
       </div>
     </div>
 
-    <!-- tabla para mobiles ETC -->
-    <div class="grid grid-cols-1 gap-4 md:hidden border">
-      <div class="bg-white p-4 rounded-lg shadow text-xs">
-        <div class="grid grid-cols-2 items-center">
-          <div class="">contenido</div>
-          <div class="">contenido</div>
-        </div>
-      </div>
+    <!-- Table body with scroll -->
+    <div class="w-full flex-grow overflow-auto">
+      <table class="table-fixed w-full text-sm relative">
+        <!-- TITLES FOR TABLE DATA -->
+        <thead class="sticky top-0 drop-shadow-sm shadow-sm">
+          <tr>
+            <th
+              class="p-8 bg-secondary text-sm font-semibold tracking-wide uppercase text-left text-third-light"
+              v-for="title in titles"
+              :key="title"
+            >
+              {{ title }}
+            </th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr
+            v-for="elm in data"
+            :key="elm.id"
+            class="odd:bg-secondary/80 odd:text-third-light even:bg-secondary/80 even:text-third-light cursor-pointer [&:nth-child(odd)]:hover:text-primary-light [&:nth-child(even)]:hover:text-primary-light hover:font-bold border border-x-0 border-slate-200"
+          >
+            <td
+              v-for="(property, propertyName, index) in elm"
+              :key="index"
+              class="text-sm capitalize text-left whitespace-nowrap overflow-x-auto [&::-webkit-scrollbar]:hidden"
+              @click="emit('pickedElement', elm.id.toString())"
+            >
+              <p class="p-8" v-if="isNestedObject(property) && property.name">
+                {{ property.name }}
+              </p>
+              <p class="p-8" v-else>
+                {{ property }}
+              </p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination Bar -->
+    <div class="w-full h-20 flex-shrink-0 mt-auto" v-if="mainStore.showPagination">
+      <PaginationBar
+        class="w-full h-full"
+        :totalpages="mainStore.getTotalPages"
+        :visible-pages="10"
+        :elementsPerPage="props.elementsPerPage"
+        :results="results"
+        :total-results="mainStore.getTotalResults"
+        :active-index="activeIndex"
+        @dataPagination="setDataPaginations($event)"
+        @prevPage="setPrevPage"
+        @nextPage="setNextPage"
+      />
     </div>
   </div>
 </template>
 
-<style scoped lang="css">
-@reference "@/assets/main.css";
-table tbody tr td:first-child {
-  @apply cursor-pointer hover:text-primary-light font-semibold;
-}
-thead {
-  box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.1);
-}
-
-td::-webkit-scrollbar {
-  @apply hidden;
-}
-</style>
+<style scoped></style>

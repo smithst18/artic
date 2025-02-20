@@ -1,14 +1,16 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
+import { useMainStore } from '@/stores/mainStore'
+
+const mainStore = useMainStore()
 
 const props = defineProps<{
-  pages: number
+  totalpages: number
   elementsPerPage: number
-  results: number
-  visiblePages: Array<number>
+  totalResults?: number
+  visiblePages: number
+  activeIndex: number | 1
 }>()
-
-const activeIndex = ref(1)
 
 const emit = defineEmits<{
   (event: 'dataPagination', page: number): void
@@ -16,63 +18,62 @@ const emit = defineEmits<{
   (event: 'prevPage'): void
 }>()
 
-const clickedPage = (page: number, index: number) => {
-  activeIndex.value = page
-  emit('dataPagination', page)
-}
-
-const prevArroy = () => {
-  if (activeIndex.value > 1) {
-    activeIndex.value -= 1
-    emit('prevPage')
-  }
-}
-
-const nextArroy = () => {
-  if (activeIndex.value < props.pages) {
-    activeIndex.value += 1
-    emit('nextPage')
-  }
-}
-const endOfPage = computed(() => activeIndex.value * props.elementsPerPage)
-const startOfPage = computed(() => endOfPage.value - props.elementsPerPage + 1)
+// Cálculo del rango de páginas visibles
+const startPage = computed(() =>
+  Math.max(1, props.activeIndex - Math.floor(props.visiblePages / 2)),
+)
+const endPage = computed(() => Math.min(props.totalpages, startPage.value + props.visiblePages - 1))
 </script>
 
 <template>
   <div class="flex items-center w-full h-full">
-    <div class="">
-      <span class="ml-2"
-        >{{ startOfPage }} a {{ endOfPage }} elementos de {{ results }} resultados totales</span
-      >
+    <div>
+      <span class="ml-2 text-third">
+        mostrando {{ props.elementsPerPage }}, elementos de {{ mainStore.getPagingCounter }} hasta
+        {{ mainStore.getPagingCounter + 10 - 1 }} resultados
+        <span v-if="props.totalResults">, total global: {{ props.totalResults }} </span>
+      </span>
     </div>
-    <nav class="ml-auto">
-      <ul class="">
-        <li @click="prevArroy"><a href="#">&lt;</a></li>
-
+    <nav class="mx-auto bg-primary rounded-2xl">
+      <!-- Agregamos list-none y flex al ul, según @apply list-none flex; -->
+      <ul class="list-none flex">
+        <!-- Primer li: botón de página anterior -->
         <li
-          v-for="(page, index) in visiblePages"
-          :class="[
-            { 'bg-primary text-white': activeIndex === page },
-            { 'text-zinc-600': activeIndex !== page },
-          ]"
-          :key="page"
-          @click="clickedPage(page, index)"
+          @click="emit('prevPage')"
+          class="mx-3 py-1 text-center cursor-pointer my-auto h-full w-6 text-secondary hover:text-secondary/90"
         >
-          <a href="#"> {{ page }} </a>
+          <a href="#" class="text-xl">&lt;</a>
         </li>
 
-        <li @click="nextArroy"><a href="#">></a></li>
+        <!-- Generar las páginas visibles -->
+        <li
+          v-for="page in endPage - startPage + 1"
+          :key="page + startPage - 1"
+          @click="emit('dataPagination', page + startPage - 1)"
+          :class="[
+            'mx-3 py-1 text-center cursor-pointer my-auto h-full w-6',
+            props.activeIndex === page + startPage - 1 ? 'text-white' : 'text-secondary',
+          ]"
+        >
+          <a
+            href="#"
+            class="rounded-sm"
+            :class="
+              props.activeIndex === page + startPage - 1 ? 'bg-secondary text-slate-800 px-2' : ''
+            "
+          >
+            {{ page + startPage - 1 }}
+          </a>
+        </li>
+
+        <!-- Último li: botón de página siguiente -->
+        <li
+          @click="emit('nextPage')"
+          class="mx-3 py-1 text-center cursor-pointer my-auto h-full w-6 text-secondary hover:text-secondary/90"
+        >
+          <a href="#" class="text-xl">></a>
+        </li>
       </ul>
     </nav>
   </div>
 </template>
-
-<style scoped lang="css">
-@reference "@/assets/main.css";
-nav > ul {
-  @apply list-none flex items-center justify-end;
-}
-nav > ul > li {
-  @apply border rounded-md mx-1 py-1 w-8 h-8 text-center cursor-pointer hover:text-white hover:bg-primary;
-}
-</style>
