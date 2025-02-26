@@ -39,16 +39,16 @@ export const getUsersListService = async (page: string, filter: string = '') => 
 
 export const updateUserService = async (form: object) => {
   try {
-    const response = await AxiosInstance.put('/user', form)
+    const response = await AxiosInstance.put('/users', form)
     return response.data
   } catch (e) {
     return e
   }
 }
 
-export const deleteUserService = async (userId: number) => {
+export const deleteUserService = async (id: number) => {
   try {
-    const response = await AxiosInstance.delete(`/users/${userId}`)
+    const response = await AxiosInstance.delete(`/users/${id}`)
     return response.data
   } catch (e) {
     return e

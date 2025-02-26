@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { onUnmounted, onUpdated, ref } from 'vue'
+import { onUnmounted, ref, watch } from 'vue'
 import { useMainStore } from '@/stores/mainStore'
 import { defineAsyncComponent, onMounted } from 'vue'
 import { useUserStore } from '../store/userStore'
 
 const props = defineProps<{
-  userType: string | string[]
+  userType: string
 }>()
 
 const userStore = useUserStore()
@@ -16,13 +16,23 @@ const UserTable = defineAsyncComponent(() => import('@/components/table/DataTabl
 
 const titles = ref(['ID', 'nombre', 'cedula', 'role', 'Departamento', 'Cargo'])
 
+//este watcher setea la db en base a prop de la ruta
+watch(
+  () => props.userType,
+  async (newType: string) => {
+    if (newType) {
+      userStore.setListFilter(newType)
+      await userStore.setUserList()
+    }
+  },
+  { immediate: true },
+)
+
 onMounted(async () => {
-  console.log(props.userType)
+  userStore.setListFilter(props.userType)
   await userStore.setUserList()
 })
-onUpdated(() => {
-  console.log(props.userType)
-})
+
 onUnmounted(() => {
   userStore.$reset()
   mainStore.$resetPaginator()
@@ -32,6 +42,7 @@ onUnmounted(() => {
 <template>
   <div class="w-full h-full shadow-md">
     <UserTable
+      v-if="userStore.getUserList.length > 0"
       :data="userStore.getUserList"
       :elements-per-page="mainStore.getPerPages"
       :show-search-bar="false"
@@ -41,6 +52,10 @@ onUnmounted(() => {
       tool-tip-msg="crear usuario"
       @picked-element="$emit('pickedUser', $event)"
     />
+    <!--SKELETTON FOR USER TABLE-->
+    <div v-else>
+      <p>hola</p>
+    </div>
   </div>
 </template>
 

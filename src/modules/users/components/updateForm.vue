@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineAsyncComponent, onMounted, onUpdated, ref } from 'vue'
+import { defineAsyncComponent, onMounted, ref, watch } from 'vue'
 import { useForm } from 'vee-validate'
 import * as yup from 'yup'
 import { useUserStore } from '@/modules/users/store/userStore'
@@ -8,14 +8,18 @@ import { push } from 'notivue'
 const props = defineProps<{
   id: string
 }>()
+const emits = defineEmits<{
+  (e: 'close-modal'): void
+}>()
 
 const MainForm = defineAsyncComponent(() => import('@/components/form/MainForm.vue'))
 const InputField = defineAsyncComponent(() => import('@/components/form/InputField.vue'))
 const SelectField = defineAsyncComponent(() => import('@/components/form/SelectField.vue'))
 const submitButton = defineAsyncComponent(() => import('@/components/commons/MainButton.vue'))
 const FormSkeleton = defineAsyncComponent(() => import('@/components/skeletons/FormSkeleton.vue'))
+
 const userStore = useUserStore()
-const userId = ref(props.id)
+const showDeleteButton = ref(false)
 
 const { errors, defineField, handleSubmit, resetForm } = useForm({
   validationSchema: yup.object({
@@ -33,12 +37,9 @@ const { errors, defineField, handleSubmit, resetForm } = useForm({
 
     role: yup.number().required('Rol requerido'),
 
-    password: yup.string().required('contraseña requerida').trim().min(6, 'Contraseña muy corta'),
+    password: yup.string().trim().min(6, 'Contraseña muy corta'),
 
-    repassword: yup
-      .string()
-      .required('repetir contraseña requerida')
-      .oneOf([yup.ref('password')], 'Las contraseñas no coinciden'),
+    repassword: yup.string().oneOf([yup.ref('password')], 'Las contraseñas no coinciden'),
 
     office: yup.number().required('Departamento requerido'),
 
@@ -55,21 +56,37 @@ const [position] = defineField('position')
 const [password] = defineField('password')
 const [repassword] = defineField('repassword')
 
-const onSubmit = handleSubmit(async (values) => {
+watch(
+  () => props.id,
+  async (newId) => {
+    if (newId) {
+      await userStore.setPickedUser(Number(newId))
+      resetForm({
+        values: {
+          ...userStore.pickedUser,
+          role: userStore.pickedUser.role.id,
+          office: userStore.pickedUser.office.id,
+          position: userStore.pickedUser.position.id,
+        },
+      })
+    }
+  },
+  { immediate: true },
+)
+
+const onUpdate = handleSubmit(async (values) => {
   const notification = push.promise({
-    title: 'Esperanda',
-    message: 'Creando Usuario...',
+    title: 'Esperando respuesta',
+    message: 'Actualizando  Data...',
   })
   try {
-    const response = await userStore.signUp(values)
+    const response = await userStore.updateUser(values)
 
-    console.log(response)
     if (response == '200') {
       notification.resolve({
-        title: 'Usuario Creado',
-        message: 'El usuario ha sido creado Exitosamente!',
+        title: 'Usuario actualizado',
+        message: 'El usuario ha sido actualizado Exitosamente!',
       })
-      resetForm()
     } else if (response == '403')
       return notification.reject({
         title: 'Ha ocurrido un error',
@@ -87,19 +104,37 @@ const onSubmit = handleSubmit(async (values) => {
 })
 
 const deleteUser = async () => {
-  console.log('user deleted id : ', userId)
-}
-onUpdated(async () => {
-  await userStore.setPickedUser(Number(props.id))
-  resetForm({
-    values: {
-      ...userStore.pickedUser,
-      role: userStore.pickedUser.role.id,
-      office: userStore.pickedUser.position.id,
-      position: userStore.pickedUser.position.id,
-    },
+  console.log(props.id)
+  const notification = push.promise({
+    title: 'Resolviendo Peticion',
+    message: 'Eliminando Usuario...',
   })
-})
+  try {
+    const response = await userStore.deleteUser(Number(props.id))
+
+    if (response == '200') {
+      emits('close-modal')
+      notification.resolve({
+        title: 'Usuario Creado',
+        message: 'El usuario ha sido Eliminado Exitosamente!',
+      })
+      resetForm()
+    } else if (response == '403')
+      return notification.reject({
+        title: 'Ha ocurrido un error',
+        message: 'Usuario no encontrado',
+      })
+    else
+      notification.reject({
+        title: 'Ha ocurrido un error',
+        message: 'Error Inexperado del servidor!',
+      })
+  } catch (err: unknown) {
+    notification.reject('Ha ocurrido un error inesperado.')
+    console.log(err)
+  }
+}
+
 onMounted(async () => {
   await userStore.setFormEntitys()
 })
@@ -107,7 +142,7 @@ onMounted(async () => {
 
 <template>
   <FormSkeleton v-if="userStore.pickedUser.id <= 0" class="w-[500px]" />
-  <MainForm @submit="onSubmit" :cols="2" id="form" class="w-full" v-else>
+  <MainForm @submit="onUpdate" :cols="2" id="form" class="w-full" v-else>
     <template v-slot:content>
       <InputField
         v-model="name"
@@ -171,13 +206,22 @@ onMounted(async () => {
         :error="errors.repassword"
       />
       <submitButton
+        v-if="showDeleteButton"
         @click="deleteUser"
         type="button"
         :full-size="false"
-        title="borrar"
+        title="confirmar borrado"
         class="text-center my-5 bg-red-400 hover:bg-red-300 active:bg-red-300 focus:ring-red-300"
-      >
-      </submitButton>
+      />
+      <submitButton
+        v-if="!showDeleteButton"
+        @click="showDeleteButton = !showDeleteButton"
+        type="button"
+        :full-size="false"
+        title="borrar usuario"
+        class="text-center my-5 bg-red-400 hover:bg-red-300 active:bg-red-300 focus:ring-red-300"
+        icon="person_remove"
+      />
       <submitButton
         type="submit"
         :full-size="true"

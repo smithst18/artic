@@ -52,7 +52,7 @@ const [repassword] = defineField('repassword')
 
 const onSubmit = handleSubmit(async (values) => {
   const notification = push.promise({
-    title: 'Esperanda',
+    title: 'Esperando respuesta',
     message: 'Creando Usuario...',
   })
   try {

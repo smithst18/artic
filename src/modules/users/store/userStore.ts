@@ -29,6 +29,7 @@ export const useUserStore = defineStore('user', () => {
     position: { id: 0, name: '' },
     role: { id: 0, name: '' },
   })
+  const userListFilter = ref<string>('')
   const usersList = ref<userI[]>([]) //lista de usuarios
   const rolesList = ref<RoleI[]>([]) //lista de roles
   const officesList = ref<OfficeI[]>([]) //lista de roles
@@ -55,7 +56,10 @@ export const useUserStore = defineStore('user', () => {
 
   const setUserList = async () => {
     //lamamos esta funcion cuando se monta el componente para cargar la tabla y steamos todos los valores
-    const { data, meta } = await getUsersListService(mainStore.getPage.toString())
+    const { data, meta } = await getUsersListService(
+      mainStore.getPage.toString(),
+      userListFilter.value,
+    )
     if (data && meta) {
       mainStore.showPagination = true
       mainStore.setPage(meta.page)
@@ -69,14 +73,13 @@ export const useUserStore = defineStore('user', () => {
 
   const updateUser = async (userId: object) => {
     const data = await updateUserService(userId)
-    console.log(data)
     if (data.updatedUser) {
+      pickedUser.value = data.updatedUser
       setUserList()
       return '200'
     }
     //goint this bloq if user error
     else if (data.response) {
-      console.log(data.response)
       return '403'
     }
     //goint this bloq if server error
@@ -171,6 +174,8 @@ export const useUserStore = defineStore('user', () => {
   return {
     usersList,
     pickedUser,
+    userListFilter,
+    setListFilter: (value: string) => (userListFilter.value = value),
     setPickedUser,
     setUserList,
     updateUser,

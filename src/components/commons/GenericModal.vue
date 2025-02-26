@@ -7,7 +7,7 @@ const props = defineProps<{
 <template>
   <transition name="modal">
     <div
-      v-show="props.showModal"
+      v-if="props.showModal"
       class="fixed inset-0 z-[999] h-full w-full bg-black/50 transition-opacity duration-200 ease-in"
       @click="$emit('close-modal')"
     >
